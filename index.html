@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Varal Inteligente ESP32 | Smart Home IoT</title>
+    
+    <!-- Configurações PWA -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0b1120">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="./varalpequeno.png">
+    <link rel="icon" type="image/png" href="./varalpequeno.png">
+    
+    <!-- Fontes Google (Inter & JetBrains Mono para dados técnicos) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="app-container">
+    <!-- Cabeçalho Profissional -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="logo-badge">
+                <i data-lucide="cloud-sun-rain"></i>
+            </div>
+            <div>
+                <h1>Varal Inteligente <span class="badge-esp">ESP32</span></h1>
+                <p class="subtitle">Automação Residencial & Telemetria</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button id="btn-install-pwa" class="btn-install hidden" title="Instalar Aplicativo">
+                <i data-lucide="download"></i>
+                <span>Instalar App</span>
+            </button>
+            <div class="connection-pill" id="connection-badge">
+                <span class="pulse-dot"></span>
+                <span id="connection-text">Conectando...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Grid Principal -->
+    <main class="dashboard-grid">
+        
+        <!-- Card 1: Meteorologia & Clima Local -->
+        <section class="card weather-card">
+            <div class="card-header">
+                <span class="card-title"><i data-lucide="map-pin"></i> Clima Local • Caxias do Sul</span>
+                <span class="update-time" id="weather-updated">Atualizando...</span>
+            </div>
+            
+            <div class="weather-main">
+                <div class="temp-display">
+                    <span class="temp-value" id="temp">--</span>
+                    <span class="temp-unit">°C</span>
+                </div>
+                <div class="weather-info">
+                    <div class="weather-condition" id="weather-desc">Carregando previsão...</div>
+                    <div class="weather-metrics">
+                        <span class="metric-pill rain-pill">
+                            <i data-lucide="droplets"></i> Chuva: <strong id="rain-prob">--%</strong>
+                        </span>
+                        <span class="metric-pill">
+                            <i data-lucide="wind"></i> Vento: <strong id="wind-speed">-- km/h</strong>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card 2: Controle Principal & Telemetria do Varal -->
+        <section class="card control-card">
+            <div class="card-header">
+                <span class="card-title"><i data-lucide="cpu"></i> Controle do Varal</span>
+                <span class="mode-tag" id="mode-badge">MODO AUTO</span>
+            </div>
+
+            <!-- Visualizador de Estado -->
+            <div class="status-grid">
+                <div class="status-box" id="box-varal">
+                    <div class="status-icon">
+                        <i data-lucide="shirt"></i>
+                    </div>
+                    <div class="status-content">
+                        <span class="status-label">Posição Atual</span>
+                        <span class="status-value" id="varal-status">Conectando...</span>
+                    </div>
+                </div>
+
+                <div class="status-box" id="box-sensor">
+                    <div class="status-icon">
+                        <i data-lucide="cloud-rain"></i>
+                    </div>
+                    <div class="status-content">
+                        <span class="status-label">Sensor de Chuva</span>
+                        <span class="status-value" id="sensor-status">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra Visual de Posição -->
+            <div class="position-visualizer">
+                <div class="visualizer-labels">
+                    <span>Recolhido (0%)</span>
+                    <span id="visualizer-percent">--</span>
+                    <span>Estendido (100%)</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="varal-progress" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Botão de Acionamento Principal -->
+            <button id="btn-toggle-varal" class="btn-primary-action" disabled>
+                <i data-lucide="loader-2" class="spin"></i>
+                <span>Aguardando ESP32...</span>
+            </button>
+
+            <!-- Configurações Rápidas (Switches) -->
+            <div class="settings-list">
+                <label class="switch-row" for="check-auto">
+                    <div class="switch-info">
+                        <span class="switch-title">Proteção Automática contra Chuva</span>
+                        <span class="switch-desc">Recolhe imediatamente ao detectar gotas ou chuva</span>
+                    </div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="check-auto" checked>
+                        <span class="slider"></span>
+                    </div>
+                </label>
+            </div>
+        </section>
+
+<!-- Card 3: Estatísticas e Eficiência de Secagem -->
+        <section class="card stats-card">
+            <div class="card-header">
+                <span class="card-title"><i data-lucide="bar-chart-3"></i> Telemetria de Exposição</span>
+                <span class="card-subtitle">Últimas 24h</span>
+            </div>
+
+            <div class="stats-highlight">
+                <div class="stat-item open-stat">
+                    <span class="stat-label">Varal Estendido</span>
+                    <span class="stat-number" id="tempo-aberto-24h">0h 00m</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item closed-stat">
+                    <span class="stat-label">Varal Recolhido</span>
+                    <span class="stat-number" id="tempo-fechado-24h">0h 00m</span>
+                </div>
+            </div>
+
+            <div class="history-table">
+                <div class="history-row">
+                    <div class="history-period">
+                        <i data-lucide="calendar"></i>
+                        <span>Semana Atual (7 dias)</span>
+                    </div>
+                    <div class="history-values">
+                        <span class="tag-green" id="sem-atual-aberto">0h 00m</span>
+                        <span class="tag-amber" id="sem-atual-fechado">0h 00m</span>
+                    </div>
+                </div>
+
+                <div class="history-row">
+                    <div class="history-period">
+                        <i data-lucide="history"></i>
+                        <span>Semana Anterior</span>
+                    </div>
+                    <div class="history-values">
+                        <span class="tag-green" id="sem-ant-aberto">0h 00m</span>
+                        <span class="tag-amber" id="sem-ant-fechado">0h 00m</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card 4: Registro de Atividades Recentes -->
+        <section class="card logs-card">
+            <div class="card-header">
+                <span class="card-title"><i data-lucide="activity"></i> Histórico de Eventos</span>
+                <button id="btn-clear-logs" class="btn-text">Limpar</button>
+            </div>
+            <ul class="event-log-list" id="event-logs">
+                <li class="log-empty">Aguardando eventos do sistema...</li>
+            </ul>
+        </section>
+
+    </main>
+</div>
+
+<!-- Toast de Notificação -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Scripts -->
+<script type="module" src="./script.js"></script>
+<script>
+    // Inicializa ícones Lucide
+    lucide.createIcons();
+
+    // Registo do Service Worker PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then((reg) => console.log('[PWA] Service Worker ativo:', reg.scope))
+                .catch((err) => console.error('[PWA] Falha ao registar SW:', err));
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "Varal Inteligente ESP32",
+  "short_name": "Varal IoT",
+  "description": "Controle automatizado de varal com ESP32 e sensor de chuva",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./varalpequeno.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./varalgrande.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["iot", "utilities", "lifestyle"],
+  "prefer_related_applications": false
+}
